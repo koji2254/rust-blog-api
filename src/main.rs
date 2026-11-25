@@ -2,8 +2,9 @@ mod error;
 mod handlers;
 mod models;
 
-use axum::{Router, routing::get};
+use axum::{routing::get, Router};
 use sqlx::postgres::PgPoolOptions;
+use tower_http::cors::CorsLayer;
 
 #[tokio::main]
 async fn main() {
@@ -29,7 +30,8 @@ async fn main() {
                 .patch(handlers::update)
                 .delete(handlers::delete),
         )
-        .with_state(pool);
+        .with_state(pool)
+        .layer(CorsLayer::permissive());
 
     let port = std::env::var("PORT").unwrap_or_else(|_| "3000".into());
     let listener = tokio::net::TcpListener::bind(format!("0.0.0.0:{port}"))
